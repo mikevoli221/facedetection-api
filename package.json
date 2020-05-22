@@ -1,0 +1,25 @@
+{
+  "name": "facedetection-api",
+  "version": "1.0.0",
+  "description": "api powered by Node and Express",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mikevoli221/facedetection-api.git"
+  },
+  "author": "Hiep Ho",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mikevoli221/facedetection-api/issues"
+  },
+  "homepage": "https://github.com/mikevoli221/facedetection-api#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}

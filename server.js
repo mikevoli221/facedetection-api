@@ -45,7 +45,7 @@ app.listen(3000, () => {
 });
 
 app.get('/', (req, res) => {
-    res.json('Setting Express Okay');
+    res.json(database.users);
 })
 
 app.post('/signin', (req, res) => {
@@ -57,7 +57,7 @@ app.post('/signin', (req, res) => {
     })
     
     isValidUser ? res.json('Signed in succesfully') : res.status(400).json('Signed in failed') 
-})
+});
 
 app.post('/register', (req, res) => {
     const {name, email, password} = req.body;
@@ -82,10 +82,39 @@ app.post('/register', (req, res) => {
         database.users.push(newUser);
         res.json('Registered user succesfully');
     }
+    //console.log(database);
+});
 
+app.get('/profile/:email',(req, res) => {
+    const userEmail = req.params.email;
+    const user = database.users.find(user => {
+        if (userEmail === user.email){
+            return true;
+        }
+    });
 
-    console.log(database);
+    (user === undefined) 
+    ? res.status(400).json('Cannot find the user')
+    : res.json(user);
+});
 
+app.put('/score/:email', (req, res) => {
+    const userEmail = req.params.email;
+    let position = 0;
+    const user = database.users.find((user, index) => {
+        if(userEmail === user.email){
+            position = index;
+            return true;
+        }
+    });
+
+    if (user === undefined){
+        res.status(400).json('Cannot find the user')
+    }else{
+        user.entries = user.entries + 1
+        database.users[position] = user;
+        res.json('Add 1 score to entries succesfully');
+    }
 })
 
 /*
@@ -94,6 +123,6 @@ app.post('/register', (req, res) => {
 /signin --> POST = success/fail
 /register --> POST = user
 /profile/:userId --> GET = user
-/image --> PUT --> user
+/score --> PUT --> user
 
 */

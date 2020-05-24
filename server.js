@@ -1,4 +1,6 @@
 const express = require('express');
+const bcrypt = require('bcrypt-nodejs');
+const cors = require('cors');
 
 const database = {
     users : [
@@ -6,7 +8,7 @@ const database = {
             id : 123,
             name : 'hiep',
             email : 'hiep@yahoo.com',
-            password : '12345',
+            password : '$2a$10$hjXiep0hVoQhc5.fOxN31OF5MD/MLkJeFK0shCX6VZ7OvDEmgGv/C',
             entries : 0,
             joined : new Date()
         },
@@ -14,7 +16,7 @@ const database = {
             id : 124,
             name : 'kim',
             email : 'kim@yahoo.com',
-            password : '12345',
+            password : '$2a$10$hjXiep0hVoQhc5.fOxN31OF5MD/MLkJeFK0shCX6VZ7OvDEmgGv/C',
             entries : 0,
             joined : new Date()
         },
@@ -22,7 +24,7 @@ const database = {
             id : 125,
             name : 'binh',
             email : 'binh@yahoo.com',
-            password : '12345',
+            password : '$2a$10$hjXiep0hVoQhc5.fOxN31OF5MD/MLkJeFK0shCX6VZ7OvDEmgGv/C',
             entries : 0,
             joined : new Date()
         },
@@ -30,7 +32,7 @@ const database = {
             id : 126,
             name : 'an',
             email : 'an@yahoo.com',
-            password : '12345',
+            password : '$2a$10$hjXiep0hVoQhc5.fOxN31OF5MD/MLkJeFK0shCX6VZ7OvDEmgGv/C',
             entries : 0,
             joined : new Date()
         }
@@ -40,6 +42,7 @@ const database = {
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 app.listen(3000, () => {
     console.log('FaceDectection API is listening on port 3000')
 });
@@ -50,13 +53,19 @@ app.get('/', (req, res) => {
 
 app.post('/signin', (req, res) => {
     const {email, password} = req.body;
-    const isValidUser = database.users.some(user => {
-        if (user.email === email && user.password === password){
+    const user = database.users.find(user => {
+        if (user.email === email){
             return true;
         }
-    })
+    });
     
-    isValidUser ? res.json('Signed in succesfully') : res.status(400).json('Signed in failed') 
+    if (user === null || user === undefined){
+        res.status(400).json('fail') 
+    }else{
+        bcrypt.compare(password, user.password, (err, result) => {
+            result ? res.json('success') : res.status(400).json('fail') 
+        });
+    }    
 });
 
 app.post('/register', (req, res) => {
@@ -79,8 +88,11 @@ app.post('/register', (req, res) => {
     if (isDuplicateUser){
         res.status(400).json('User is already existed');
     }else{
-        database.users.push(newUser);
-        res.json('Registered user succesfully');
+        bcrypt.hash(password, null, null, (err, hash) => {
+            newUser.password = hash;
+            database.users.push(newUser);
+            res.json('success');
+        });
     }
     //console.log(database);
 });
@@ -100,29 +112,16 @@ app.get('/profile/:email',(req, res) => {
 
 app.put('/score/:email', (req, res) => {
     const userEmail = req.params.email;
-    let position = 0;
+    //let position = 0;
     const user = database.users.find((user, index) => {
         if(userEmail === user.email){
-            position = index;
+            //position = index;
+            user.entries++;
             return true;
         }
     });
 
-    if (user === undefined){
-        res.status(400).json('Cannot find the user')
-    }else{
-        user.entries = user.entries + 1
-        database.users[position] = user;
-        res.json('Add 1 score to entries succesfully');
-    }
+    (user === undefined) 
+    ? res.status(400).json('Cannot find the user')
+    : res.json('Add 1 score to entries succesfully');
 })
-
-/*
-
-/ res = this is working
-/signin --> POST = success/fail
-/register --> POST = user
-/profile/:userId --> GET = user
-/score --> PUT --> user
-
-*/

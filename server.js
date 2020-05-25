@@ -91,7 +91,7 @@ app.post('/register', (req, res) => {
         bcrypt.hash(password, null, null, (err, hash) => {
             newUser.password = hash;
             database.users.push(newUser);
-            res.json('success');
+            res.json(newUser);
         });
     }
     //console.log(database);

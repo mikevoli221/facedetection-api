@@ -63,7 +63,7 @@ app.post('/signin', (req, res) => {
         res.status(400).json('fail') 
     }else{
         bcrypt.compare(password, user.password, (err, result) => {
-            result ? res.json('success') : res.status(400).json('fail') 
+            result ? res.json(user) : res.status(400).json('fail') 
         });
     }    
 });

@@ -113,9 +113,8 @@ app.get('/profile/:email',(req, res) => {
 app.put('/score/:email', (req, res) => {
     const userEmail = req.params.email;
     //let position = 0;
-    const user = database.users.find((user, index) => {
+    const user = database.users.find((user) => {
         if(userEmail === user.email){
-            //position = index;
             user.entries++;
             return true;
         }

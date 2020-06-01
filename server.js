@@ -123,5 +123,5 @@ app.put('/score/:email', (req, res) => {
 
     (user === undefined) 
     ? res.status(400).json('Cannot find the user')
-    : res.json('Add 1 score to entries succesfully');
+    : res.json(user);
 })

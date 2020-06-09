@@ -1,8 +1,21 @@
 const express = require('express');
 const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
+const knex = require("knex");
 
-const database = {
+const database = knex(
+    {
+        client: 'pg',
+        connection: {
+          host : '127.0.0.1',
+          user : 'hiepho',
+          password : '',
+          database : 'smart-brain'
+        }
+    }
+);
+
+/* const database = {
     users : [
         {
             id : 123,
@@ -37,7 +50,7 @@ const database = {
             joined : new Date()
         }
     ]
-};
+}; */
 
 
 const app = express();
@@ -47,54 +60,79 @@ app.listen(3000, () => {
     console.log('FaceDectection API is listening on port 3000')
 });
 
+
 app.get('/', (req, res) => {
-    res.json(database.users);
+    database('users')
+        .join('entries', 'users.email', '=', 'entries.email')
+        .select('users.*', 'entries.entries')
+        .then(data => {
+            //console.log(data);
+            res.json(data);
+        });
 })
 
 app.post('/signin', (req, res) => {
     const {email, password} = req.body;
-    const user = database.users.find(user => {
+    
+    /* const user = database.users.find(user => {
         if (user.email === email){
             return true;
         }
+    }); */
+
+    database('users')
+    .join('entries', 'users.email', '=', 'entries.email')
+    .select('users.*', 'entries.entries')
+    .where('users.email', email)
+    .then(data => {
+        //console.log(data);
+        if (data.length === 0){
+            res.status(400).json('fail'); 
+        }else{
+            const user = data[0];
+            bcrypt.compare(password, user.password, (err, result) => {
+                result ? res.json(user) : res.status(400).json('fail') 
+            });
+        }
     });
-    
-    if (user === null || user === undefined){
-        res.status(400).json('fail') 
-    }else{
-        bcrypt.compare(password, user.password, (err, result) => {
-            result ? res.json(user) : res.status(400).json('fail') 
-        });
-    }    
 });
 
 app.post('/register', (req, res) => {
     const {name, email, password} = req.body;
     const newUser = {
-        id : 111,
         name : name,
         email : email,
         password: password,
-        entries : 0,
         joined : new Date()
     }
 
-    const isDuplicateUser = database.users.some(user => {
+    /* const isDuplicateUser = database.users.some(user => {
         if (user.email === email){
             return true;
         }
-    })
+    }) */
 
-    if (isDuplicateUser){
-        res.status(400).json('User is already existed');
-    }else{
-        bcrypt.hash(password, null, null, (err, hash) => {
-            newUser.password = hash;
-            database.users.push(newUser);
-            res.json(newUser);
-        });
-    }
-    //console.log(database);
+    database('users').where('email', email).then (data =>  {
+        //console.log(data);
+        if (data.length === 0){
+            bcrypt.hash(password, null, null, (err, hash) => {
+                newUser.password = hash;
+                database('users').insert(newUser).then(() => {
+                    database('entries').insert(
+                        {
+                            email : email,
+                            entries : 0
+                        }
+                    ).then(() => {
+                        newUser.entries = 0;
+                        res.json(newUser)
+                    })
+                });
+            });    
+        }else{
+            res.status(400).json('User is already existed');
+        }
+    })
 });
 
 app.get('/profile/:email',(req, res) => {

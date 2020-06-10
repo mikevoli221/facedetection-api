@@ -8,8 +8,8 @@ const database = knex(
         client: 'pg',
         connection: {
           host : '127.0.0.1',
-          user : 'hiepho',
-          password : '',
+          user : 'postgres',
+          password : 'admin',
           database : 'smart-brain'
         }
     }
@@ -148,17 +148,36 @@ app.get('/profile/:email',(req, res) => {
     : res.json(user);
 });
 
-app.put('/score/:email', (req, res) => {
+app.put('/score/:email/:entries', (req, res) => {
     const userEmail = req.params.email;
+    const currentEntries = req.params.entries;
+    //console.log('userEmail', userEmail);
+    //console.log('currentEntries', currentEntries);
     //let position = 0;
-    const user = database.users.find((user) => {
+
+    database('entries')
+    .returning('entries')
+    .update({entries : Number(currentEntries) + 1})
+    .where('email', '=', userEmail)
+    .then(data => {
+        if (data.length !== 0){
+            database('users')
+            .join('entries','users.email', '=', 'entries.email')
+            .select('users.*', 'entries.entries')
+            .where('users.email','=',userEmail)
+            .then(data => {
+                res.json(data[0]);
+            })
+        }else{
+            res.status(400).json('Cannot find the user')
+        }
+    });
+
+    /* const user = database.users.find((user) => {
         if(userEmail === user.email){
             user.entries++;
             return true;
         }
     });
-
-    (user === undefined) 
-    ? res.status(400).json('Cannot find the user')
-    : res.json(user);
+     */
 })

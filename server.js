@@ -57,12 +57,12 @@ const database = knex(
     ]
 }; */
 
-
+const port = process.env.port;
 const app = express();
 app.use(express.json());
 app.use(cors());
-app.listen(3000, () => {
-    console.log('FaceDectection API is listening on port 3000')
+app.listen(port, () => {
+    console.log(`FaceDectection API is listening on port ${port}`)
 });
 
 
@@ -75,3 +75,5 @@ app.post('/register', (req, res) => register.handleRegister(req, res, database, 
 app.get('/profile/:email',(req, res) => profile.getProfile(req, res, database));
 
 app.put('/score/:email', (req, res) => image.updateEntries(req, res, database));
+
+app.post('/callClarifaiAPI', (req, res) => image.callClarifaiAPI(req, res));

@@ -8,6 +8,11 @@ const handleSignIn = (req, res, database, bcrypt) => {
         }
     }); */
 
+    if (!email || !password){
+        res.status(400).json('Error in user login');
+        return;
+    }
+
     database('users')
     .join('entries', 'users.email', '=', 'entries.email')
     .select('users.*', 'entries.entries')

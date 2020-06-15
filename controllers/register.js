@@ -1,6 +1,12 @@
 const handleRegister = (req, res, database, bcrypt) => {
     
     const {name, email, password} = req.body;
+
+    if (!name || !email || !password){
+        res.status(400).json('Error in user registration');
+        return;
+    }
+
     const newUser = {
         name : name,
         email : email,

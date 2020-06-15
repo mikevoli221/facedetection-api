@@ -1,3 +1,5 @@
+const Clarifai = require('clarifai');
+
 const updateEntries = (req, res, database) => {
     const userEmail = req.params.email;
     const currentEntries = req.params.entries;
@@ -33,4 +35,20 @@ const updateEntries = (req, res, database) => {
      */
 }
 
-module.exports = {updateEntries : updateEntries};
+const callClarifaiAPI = (req, res) => {
+    const app = new Clarifai.App({
+        apiKey: '953f4833c2c54483a912bed1b841bde5'
+    });
+
+    app.models.predict(Clarifai.FACE_DETECT_MODEL, req.body.imageUrl)
+    .then(response => res.status(200).json(response))
+    .catch(err => {
+        console.log(err);
+        res.status(400).json('could not call Clarifai API');
+    });
+}
+
+module.exports = {
+    updateEntries : updateEntries,
+    callClarifaiAPI : callClarifaiAPI
+};

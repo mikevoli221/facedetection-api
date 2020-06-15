@@ -4,7 +4,7 @@
   "description": "api powered by Node and Express",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "port=3000 nodemon server.js"
   },
   "repository": {
     "type": "git",
@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
+    "clarifai": "^2.9.1",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "knex": "^0.21.1",

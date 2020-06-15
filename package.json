@@ -4,7 +4,7 @@
   "description": "api powered by Node and Express",
   "main": "server.js",
   "scripts": {
-    "start": "port=3000 nodemon server.js"
+    "start": "nodemon server.js"
   },
   "repository": {
     "type": "git",

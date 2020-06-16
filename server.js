@@ -66,7 +66,9 @@ app.listen(port, () => {
 });
 
 
-app.get('/', (req, res) => profile.getAllProfiles(req, res, database));
+//app.get('/', (req, res) => profile.getAllProfiles(req, res, database));
+
+app.get('/', (req, res) => res.send('Hello from FaceDetection EndPoints'));
 
 app.post('/signin', (req, res) => signin.handleSignIn(req, res, database, bcrypt));
 

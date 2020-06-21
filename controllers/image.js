@@ -37,7 +37,7 @@ const updateEntries = (req, res, database) => {
 
 const callClarifaiAPI = (req, res) => {
     const app = new Clarifai.App({
-        apiKey: '45a608a8646e432ebaf8e53764b6b51a'
+        apiKey: process.env.CLARIFAI_API_KEY
     });
 
     app.models.predict(Clarifai.FACE_DETECT_MODEL, req.body.imageUrl)
